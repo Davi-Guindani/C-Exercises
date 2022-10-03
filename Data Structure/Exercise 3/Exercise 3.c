@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-typedef struct arvore
+typedef struct tree
 {
 	int info;
-	struct arvore *esq, *dir;
-} arvore;
+	struct tree *left, *right;
+} tree;
 
-arvore *LerArvore (FILE *arq)
+tree *readTree (FILE *arq)
 {
 	int n;
 	char c;
@@ -22,73 +22,73 @@ arvore *LerArvore (FILE *arq)
 	}
 	else // nao nula
 	{
-		arvore *a;
-		a = (arvore*) malloc (sizeof (arvore));
+		tree *a;
+		a = (tree*) malloc (sizeof (tree));
 		a->info = n;
-		a->esq = LerArvore (arq);
-		a->dir = LerArvore (arq);
+		a->left = readTree (arq);
+		a->right = readTree (arq);
 		fscanf (arq, "%c", &c); // lendo o ')'
 		return a;
 	}
 }
 
-void ImprimirPreOrdem (arvore *a)
+void ImprimirPreOrdem (tree *a)
 {
 	if (a != NULL)
 	{
 		printf ("%d ", a->info);
-		ImprimirPreOrdem (a->esq);
-		ImprimirPreOrdem (a->dir);
+		ImprimirPreOrdem (a->left);
+		ImprimirPreOrdem (a->right);
 	}
 }
 
-void ImprimirEmOrdem (arvore *a)
+void ImprimirEmOrdem (tree *a)
 {
 	if (a != NULL)
 	{
-		ImprimirEmOrdem (a->esq);
+		ImprimirEmOrdem (a->left);
 		printf ("%d ", a->info);
-		ImprimirEmOrdem (a->dir);
+		ImprimirEmOrdem (a->right);
 	}
 }
 
-void ImprimirPosOrdem (arvore *a)
+void ImprimirPosOrdem (tree *a)
 {
 	if (a != NULL)
 	{
-		ImprimirPosOrdem (a->esq);
-		ImprimirPosOrdem (a->dir);
+		ImprimirPosOrdem (a->left);
+		ImprimirPosOrdem (a->right);
 		printf ("%d ", a->info);
 	}
 }
 
-void ImprimirNivel (arvore *a, int cont, int nivel)
+void ImprimirNivel (tree *a, int cont, int nivel)
 {
 	if (a != NULL)
 	{
 		if (cont == nivel) printf ("%d ", a->info);
 		else 
 		{
-			ImprimirNivel (a->esq, cont + 1, nivel);
-			ImprimirNivel (a->dir, cont + 1, nivel);
+			ImprimirNivel (a->left, cont + 1, nivel);
+			ImprimirNivel (a->right, cont + 1, nivel);
 		}
 	}
 }
 
-int Altura (arvore *a)
+int Altura (tree *a)
 {
 	if (a == NULL) return 0;
 	else
 	{
 		int hd, he;
-		he = Altura (a->esq);
-		hd = Altura (a->dir);
+		he = Altura (a->left);
+		hd = Altura (a->right);
 		if (he > hd) return he + 1;
 		else return hd + 1;
 	}
 }
 
-void ImprimirEmLargura (arvore *a, int n)
+void ImprimirEmLargura (tree *a, int n)
 {
 	if (a != NULL && n < Altura (a))
 	{
@@ -98,115 +98,115 @@ void ImprimirEmLargura (arvore *a, int n)
 	} 
 }
 
-int Existe (arvore * a, int n)
+int Existe (tree * a, int n)
 {
 	if (a == NULL) return 0;
 	else if (n == a->info) return 1;
-	else if (n < a->info) return Existe (a->esq, n);
-	else return Existe (a->dir, n);
+	else if (n < a->info) return Existe (a->left, n);
+	else return Existe (a->right, n);
 }
 
-int NivelNo (arvore *a, int cont, int n)
+int NivelNo (tree *a, int cont, int n)
 {
 	if (a != NULL)
 	{
 		if (a->info != n) 
 		{
-			if (n < a->info) return (NivelNo (a->esq, cont + 1, n));
-			else return NivelNo (a->dir, cont + 1, n);
+			if (n < a->info) return (NivelNo (a->left, cont + 1, n));
+			else return NivelNo (a->right, cont + 1, n);
 		}
 		else return cont;
 	}
 	else return 0;
 }
 
-void ImprimirMaioresIguais (arvore *a, int n)
+void ImprimirMaioresIguais (tree *a, int n)
 {
 	if (a!= NULL)
 	{
 		if (a->info >= n)
 		{
 			printf ("%d ", a->info);
-			ImprimirMaioresIguais (a->esq, n);
-			ImprimirMaioresIguais (a->dir, n);
+			ImprimirMaioresIguais (a->left, n);
+			ImprimirMaioresIguais (a->right, n);
 		}	
-		else ImprimirMaioresIguais (a->dir, n);
+		else ImprimirMaioresIguais (a->right, n);
 	}
 }
 
-void ImprimirFolhasMenores (arvore *a, int n)
+void ImprimirFolhasMenores (tree *a, int n)
 {
 	if (a != NULL)
 	{
-		if ((a->esq == NULL) && (a->dir == NULL) && (a->info < n)) printf ("%d ", a->info);
+		if ((a->left == NULL) && (a->right == NULL) && (a->info < n)) printf ("%d ", a->info);
 		else
 		{
 			if ((a->info + 2) <= n)
 			{
-				ImprimirFolhasMenores (a->esq, n);
-				ImprimirFolhasMenores (a->dir, n);
+				ImprimirFolhasMenores (a->left, n);
+				ImprimirFolhasMenores (a->right, n);
 			}
-			else ImprimirFolhasMenores (a->esq, n);
+			else ImprimirFolhasMenores (a->left, n);
 		}
 	}
 }
 
-arvore *Inserir (arvore *a, int n)
+tree *Inserir (tree *a, int n)
 {
 	if (a == NULL)
 	{
-		a = (arvore*)malloc(sizeof(arvore));
+		a = (tree*)malloc(sizeof(tree));
 		a->info = n;
-		a->esq = NULL;
-		a->dir = NULL;
+		a->left = NULL;
+		a->right = NULL;
 	}
-	else if (n <= a->info) a->esq = Inserir (a->esq, n);
-	else a->dir = Inserir (a->dir, n);
+	else if (n <= a->info) a->left = Inserir (a->left, n);
+	else a->right = Inserir (a->right, n);
 	return a;
 }
 
-void Remover (arvore **a, int n)
+void Remover (tree **a, int n)
 {
 	if (*a != NULL)
 	{
 		if ((*a)->info == n)
 		{
-			if (((*a)->esq == NULL) && ((*a)->dir == NULL))
+			if (((*a)->left == NULL) && ((*a)->right == NULL))
 			{
 				free (*a);
 				*a = NULL;
 			}
-			else if ((*a)->esq == NULL)
+			else if ((*a)->left == NULL)
 			{
-				arvore *aux = (*a)->dir;
+				tree *aux = (*a)->right;
 				free (*a);
 				*a = aux;
 			}
-			else if ((*a)->dir == NULL)
+			else if ((*a)->right == NULL)
 			{
-				arvore *aux = (*a)->esq;
+				tree *aux = (*a)->left;
 				free (*a);
 				*a = aux;
 			}
 			else
 			{
-				arvore *aux = (*a)->esq;
-				while (aux->dir != NULL) aux = aux->dir;
+				tree *aux = (*a)->left;
+				while (aux->right != NULL) aux = aux->right;
 				(*a)->info == aux->info;
-				Remover (&((*a)->esq), aux->info);
+				Remover (&((*a)->left), aux->info);
 			}
 		}
-		else if (n < (*a)->info) Remover (&((*a)->esq), n);
-		else Remover (&((*a)->dir), n);
+		else if (n < (*a)->info) Remover (&((*a)->left), n);
+		else Remover (&((*a)->right), n);
 	}
 }
 
-void Destruir (arvore *a)
+void Destruir (tree *a)
 {
 	if (a != NULL)
 	{
-		Destruir (a->esq);	
-		Destruir (a->dir); 	
+		Destruir (a->left);	
+		Destruir (a->right); 	
 		free (a);
 	}	
 }
@@ -216,7 +216,7 @@ int main ()
 	int cmd = 0;
 	int dado = 0;
 	char entrada [50];
-	arvore *a;
+	tree *a;
 	FILE *f;
 	
 	printf ("Forneca o arquivo de uma arvore para ser trabalhada (nao esqueca do .txt):\n");
@@ -239,7 +239,7 @@ int main ()
 		switch (cmd)
 		{
 			case 1:
-				a = LerArvore (f);
+				a = readTree (f);
 				printf ("Arvore lida.\n");
 			break;
 			case 2:
