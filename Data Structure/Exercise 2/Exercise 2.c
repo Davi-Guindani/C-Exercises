@@ -52,13 +52,13 @@ tree *readTree (FILE *f)
 	}
 	else // not null
 	{
-		tree *a;
-		a = (tree*) malloc (sizeof (tree));
-		a->info = n;
-		a->left = readTree (f);
-		a->right = readTree (f);
+		tree *t;
+		t = (tree*) malloc (sizeof (tree));
+		t->info = n;
+		t->left = readTree (f);
+		t->right = readTree (f);
 		fscanf (f, "%c", &c); // reading the ')'
-		return a;
+		return t;
 	}
 }
 

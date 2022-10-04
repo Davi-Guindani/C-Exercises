@@ -2,195 +2,194 @@
 #include <stdlib.h>
 #include <math.h>
 
-typedef struct arvore
+typedef struct tree
 {
 	int info;
-	struct arvore *esq, *dir;
-} arvore;
+	struct tree *left, *right;
+} tree;
 
-arvore *LerArvore (FILE *arq)
+tree *readTree (FILE *f)
 {
 	int n;
 	char c;
 	
-	fscanf (arq, "%c", &c); // lendo o '('
-	fscanf (arq, "%d", &n);
-	if (n == -1) // arvore nula
+	fscanf (f, "%c", &c); // reading the '('
+	fscanf (f, "%d", &n);
+	if (n == -1) // null tree
 	{	
-		fscanf (arq, "%c", &c); // lendo o ')'
+		fscanf (f, "%c", &c); // reading the ')'
 		return NULL;
 	}
-	else // nao nula
+	else // not null
 	{
-		arvore *a;
-		a = (arvore*) malloc (sizeof (arvore));
-		a->info = n;
-		a->esq = LerArvore (arq);
-		a->dir = LerArvore (arq);
-		fscanf (arq, "%c", &c); // lendo o ')'
-		return a;
+		tree *t;
+		t = (tree*) malloc (sizeof (tree));
+		t->info = n;
+		t->left = readTree (f);
+		t->right = readTree (f);
+		fscanf (f, "%c", &c); // reading the ')'
+		return t;
 	}
 }
 
-void ImprimirPreOrdem (arvore *a)
+void printPreOrder (tree *t)
 {
-	if (a != NULL)
+	if (t != NULL)
 	{
-		printf ("%d ", a->info);
-		ImprimirPreOrdem (a->esq);
-		ImprimirPreOrdem (a->dir);
+		printf ("%d ", t->info);
+		printPreOrder (t->left);
+		printPreOrder (t->right);
 	}
 }
 
-void ImprimirEmOrdem (arvore *a)
+void printInOrder (tree *t)
 {
-	if (a != NULL)
+	if (t != NULL)
 	{
-		ImprimirEmOrdem (a->esq);
-		printf ("%d ", a->info);
-		ImprimirEmOrdem (a->dir);
+		printInOrder (t->left);
+		printf ("%d ", t->info);
+		printInOrder (t->right);
 	}
 }
 
-void ImprimirPosOrdem (arvore *a)
+void printPostOrder (tree *t)
 {
-	if (a != NULL)
+	if (t != NULL)
 	{
-		ImprimirPosOrdem (a->esq);
-		ImprimirPosOrdem (a->dir);
-		printf ("%d ", a->info);
+		printPostOrder (t->left);
+		printPostOrder (t->right);
+		printf ("%d ", t->info);
 	}
 }
 
-void ImprimirNivel (arvore *a, int cont, int nivel)
+void printLevel (tree *t, int count, int level)
 {
-	if (a != NULL)
+	if (t != NULL)
 	{
-		if (cont == nivel) printf ("%d ", a->info);
+		if (count == level) printf ("%d ", t->info);
 		else 
 		{
-			ImprimirNivel (a->esq, cont + 1, nivel);
-			ImprimirNivel (a->dir, cont + 1, nivel);
+			printLevel (t->left, count + 1, level);
+			printLevel (t->right, count + 1, level);
 		}
 	}
 }
 
-int Altura (arvore *a)
+int height (tree *t)
 {
-	if (a == NULL) return 0;
+	if (t == NULL) return 0;
 	else
 	{
-		int hd, he;
-		he = Altura (a->esq);
-		hd = Altura (a->dir);
-		if (he > hd) return he + 1;
-		else return hd + 1;
+		int hr, hl;
+		hl = height (t->left);
+		hr = height (t->right);
+		if (hl > hr) return hl + 1;
+		else return hr + 1;
 	}
 }
 
-void ImprimirEmLargura (arvore *a, int n)
+void printInWidth (tree *t, int n)
 {
-	if (a != NULL && n < Altura (a))
+	if (t != NULL && n < height (t))
 	{
-		ImprimirNivel (a, 0, n);
+		printLevel (t, 0, n);
 		printf ("\n");
-		ImprimirEmLargura (a, ++n);
+		printInWidth (t, ++n);
 	} 
 }
 
-int Existe (arvore * a, int n)
+int exists (tree * t, int n)
 {
-	if (a == NULL) return 0;
-	else if (n == a->info) return 1;
-	else if (n < a->info) return Existe (a->esq, n);
-	else return Existe (a->dir, n);
-}
-
-int NivelNo (arvore *a, int cont, int n)
-{
-	if (a != NULL)
+	if (t != NULL) 
 	{
-		if (a->info != n) 
-		{
-			if (n < a->info) return (NivelNo (a->esq, cont + 1, n));
-			else return NivelNo (a->dir, cont + 1, n);
-		}
-		else return cont;
+		if (t->info != n) return (exists (t->left, n) || exists (t->right, n));
+		else return 1;
 	}
 	else return 0;
 }
 
-void ImprimirMaioresIguais (arvore *a, int n)
+int nodeLevel (tree *t, int count, int n)
 {
-	if (a!= NULL)
+	if (t != NULL)
 	{
-		if (a->info >= n)
+		if (t->info != n) return (nodeLevel (t->left, count + 1, n) + nodeLevel (t->right, count + 1, n));
+		else return count;
+	}
+	else return 0;
+}
+
+
+void printGreaterOrEqual (tree *t, int n)
+{
+	if (t!= NULL)
+	{
+		if (t->info >= n)
 		{
-			printf ("%d ", a->info);
-			ImprimirMaioresIguais (a->esq, n);
-			ImprimirMaioresIguais (a->dir, n);
+			printf ("%d ", t->info);
+			printGreaterOrEqual (t->left, n);
+			printGreaterOrEqual (t->right, n);
 		}	
-		else ImprimirMaioresIguais (a->dir, n);
+		else printGreaterOrEqual (t->right, n);
 	}
 }
 
-void ImprimirFolhasMenores (arvore *a, int n)
+void printSmallerLeafs (tree *t, int n)
 {
-	if (a != NULL)
+	if (t != NULL)
 	{
-		if ((a->esq == NULL) && (a->dir == NULL) && (a->info < n)) printf ("%d ", a->info);
+		if ((t->left == NULL) && (t->right == NULL) && (t->info < n)) printf ("%d ", t->info);
 		else
 		{
-			if ((a->info + 2) <= n)
+			if ((t->info + 2) <= n)
 			{
-				ImprimirFolhasMenores (a->esq, n);
-				ImprimirFolhasMenores (a->dir, n);
+				printSmallerLeafs (t->left, n);
+				printSmallerLeafs (t->right, n);
 			}
-			else ImprimirFolhasMenores (a->esq, n);
+			else printSmallerLeafs (t->left, n);
 		}
 	}
 }
 
-arvore *RotacaoEsqSimples(arvore *p)
+tree *simpleLeftRotation(tree *a)
 {
-	arvore *b = p->dir;
-	p->dir = b->esq;
-	b->esq = p;
-	return b;
+	tree *t = a->right;
+	a->right = t->left;
+	t->left = a;
+	return t;
 }
 
-arvore *RotacaoDirSimples(arvore *p)
+tree *simpleRightRotation(tree *a)
 {
-	arvore *b = p->esq;
-	p->esq = b->dir;
-	b->dir = p;
-	return b;
+	tree *t = a->left;
+	a->left = t->right;
+	t->right = a;
+	return t;
 }
 
-arvore *RotacaoEsqDupla(arvore *p)
+tree *doubleLeftRotation(tree *t)
 {
-	p->dir = RotacaoDirSimples(p->dir);
-	p = RotacaoEsqSimples(p);
-	return p;
+	t->right = RotacaoDirSimples(t->right);
+	t = RotacaoEsqSimples(t);
+	return t;
 }
 
-arvore *RotacaoDirDupla(arvore *p)
+tree *doubleRightRotation(tree *t)
 {
-	p->esq = RotacaoEsqSimples(p->esq);
-	p = RotacaoDirSimples(p);
-	return p;
+	t->left = RotacaoEsqSimples(t->left);
+	t = RotacaoDirSimples(t);
+	return t;
 }
 
-arvore *RotacaoEsq(arvore *p)
+tree *leftRotation(tree *p)
 {
-	int he = Altura(p->esq);
-	int hd = Altura(p->dir);
-	if (fabs(hd - he) > 1)
+	int hl = height(p->left);
+	int hr = height(p->right);
+	if (fabs(hr - hl) > 1)
 	{
-		arvore *b = p->dir;
-		he = Altura(b->esq);
-		hd = Altura(b->dir);
-		if (he > hd)
+		tree *b = p->right;
+		hl = Altura(b->left);
+		hr = Altura(b->right);
+		if (hl > hr)
 		p = RotacaoEsqDupla(p);
 		else
 		p = RotacaoEsqSimples(p);
@@ -246,13 +245,13 @@ arvore *Remover(arvore *a, int x)
 	{
 		if(a->info == x)
 		{
-			//Verificar se é folha
+			//Verificar se ï¿½ folha
 			if(a->esq == NULL && a->dir == NULL)
 			{
 				free(a);
 				return NULL;
 			}
-			//Verificar se um dos filhos é nulo
+			//Verificar se um dos filhos ï¿½ nulo
 			else if (a->esq == NULL || a->dir == NULL)
 			{
 				arvore *aux;
