@@ -1,74 +1,74 @@
 #include <stdio.h>
 
-int moedas[5] = {1, 5, 10, 25, 50};
+int coins[5] = {1, 5, 10, 25, 50};
 
-void ComboChar (char *vet, int pos, int n, char *vetAux)
+void charCombo (char *vet, int pos, int n, char *vetAux)
 {
 	int i;
 	if (pos == n)
 	{
-		int cont = 0;
-		for (i = 0; i <= n; i ++) if (vet[i] == 'a') cont ++;
-		if (cont >= 2) 
+		int count = 0;
+		for (i = 0; i <= n; i ++) if (vet[i] == 'a') count ++;
+		if (count >= 2) 
 		{
 			for (i = 0; i <= n; i ++) printf ("%c ", vet[i]);
 			printf ("\n");
 		}
-		cont = 0;
+		count = 0;
 	}
 	else 
 	{
 		for (i = 0; i <= 2; i ++)
 		{
 			vet[pos] = vetAux[i];
-			ComboChar (vet, pos + 1, n, vetAux);
+			charCombo (vet, pos + 1, n, vetAux);
 		}
 	}
 }
 
-void ComboInt (int *vet, int pos, int n, int *vetAux)
+void intCombo (int *vet, int pos, int n, int *vetAux)
 {
 	int i;
 	if (pos == n)
 	{
-		int soma = 0;
-		for (i = 0; i < n; i ++) soma += vet[i];
-		if (soma % 2 == 0)
+		int sum = 0;
+		for (i = 0; i < n; i ++) sum += vet[i];
+		if (sum % 2 == 0)
 		{
 			for (i = 0; i < n; i ++) printf ("%d ", vet[i]);
 			printf ("\n");
 		}
-		soma = 0;
+		sum = 0;
 	}
 	else
 	{
 		for (i = 0; i <= 3; i ++)
 		{
 			vet[pos] = vetAux[i];
-			ComboInt (vet, pos + 1, n, vetAux);
+			intCombo (vet, pos + 1, n, vetAux);
 		}
 	}
 }
 
-void ImprimirCombinacoes (int vet[], int pos, int valor)
+void printCombinations (int vet[], int pos, int value)
 {
     int i;
 	if (pos == 5)
 	{
-        int soma = 0;
-        for (i = 0; i < 5; i ++) soma += moedas[i]*vet[i];
-        if (soma == valor)
+        int sum = 0;
+        for (i = 0; i < 5; i ++) sum += coins[i]*vet[i];
+        if (sum == value)
 		{
             printf("\n");
-            for (i = 0; i < 5; i ++) if (vet[i] != 0) printf("%d moedas de %d\n", vet[i], moedas[i]);
+            for (i = 0; i < 5; i ++) if (vet[i] != 0) printf("%d moedas de %d\n", vet[i], coins[i]);
         }
     }
     else
 	{
-        for (i = 0; i <= valor / moedas[pos]; i ++)
+        for (i = 0; i <= value / coins[pos]; i ++)
 		{
             vet[pos] = i;
-            ImprimirCombinacoes (vet, pos + 1, valor);
+            printCombinations (vet, pos + 1, value);
         }
     }
 }
@@ -76,40 +76,40 @@ void ImprimirCombinacoes (int vet[], int pos, int valor)
 int main ()
 {
   int cmd = 0;
-  int dado = 0;
+  int data = 0;
   int vet[5];
   
   while (cmd != 4)
   {
-  		printf ("1: Combinacoes de a, e, i, de tamanho n...\n");
-		printf ("2: Combinacoes de 15, 31, 55, 44, de tamanho n...\n");
-		printf ("3: Moedas\n");
-		printf ("4: Sair\n");
-		printf ("Escolha: ");
+  		printf ("1: Combinations of a, e, i, of size n...\n");
+		printf ("2: Combinations of 15, 31, 55, 44, size n...\n");
+		printf ("3: Coins\n");
+		printf ("4: Halt\n");
+		printf ("Choice: ");
 		scanf ("%d", &cmd);
 		printf ("\n");
 		
-		printf ("Digite o valor de N ou de centavos\n");
-		scanf ("%d", &dado);
+		printf ("Enter the value of N or cents\n");
+		scanf ("%d", &data);
 		printf ("\n");
 
 		char vetcaux[] = {'a','e','i'};
-		char vetc[dado];
+		char vetc[data];
 		int vetiaux[] = {15, 31, 55, 44};
-		int veti[dado];
+		int veti[data];
 		
 		switch (cmd)
 		{
 			case 1:
-				ComboChar (vetc, 0, dado, vetcaux);
+				ComboChar (vetc, 0, data, vetcaux);
 				printf ("\n");
 			break;
 			case 2:
-				ComboInt (veti, 0, dado, vetiaux);
+				ComboInt (veti, 0, data, vetiaux);
 				printf ("\n");
 			break;
 			case 3:
-				ImprimirCombinacoes (vet, 0, dado);
+				ImprimirCombinacoes (vet, 0, data);
 			break;
 			case 4:
 				

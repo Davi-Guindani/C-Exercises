@@ -118,7 +118,6 @@ int nodeLevel (tree *t, int count, int n)
 	else return 0;
 }
 
-
 void printGreaterOrEqual (tree *t, int n)
 {
 	if (t!= NULL)
@@ -150,243 +149,243 @@ void printSmallerLeafs (tree *t, int n)
 	}
 }
 
-tree *simpleLeftRotation(tree *a)
+tree *simpleLeftRotation(tree *t)
 {
-	tree *t = a->right;
-	a->right = t->left;
-	t->left = a;
-	return t;
+	tree *a = t->right;
+	t->right = a->left;
+	a->left = t;
+	return a;
 }
 
-tree *simpleRightRotation(tree *a)
+tree *simpleRightRotation(tree *t)
 {
-	tree *t = a->left;
-	a->left = t->right;
-	t->right = a;
-	return t;
+	tree *a = t->left;
+	t->left = a->right;
+	a->right = t;
+	return a;
 }
 
 tree *doubleLeftRotation(tree *t)
 {
-	t->right = RotacaoDirSimples(t->right);
-	t = RotacaoEsqSimples(t);
+	t->right = simpleRightRotation(t->right);
+	t = simpleLeftRotation(t);
 	return t;
 }
 
 tree *doubleRightRotation(tree *t)
 {
-	t->left = RotacaoEsqSimples(t->left);
-	t = RotacaoDirSimples(t);
+	t->left = simpleLeftRotation(t->left);
+	t = simpleRightRotation(t);
 	return t;
 }
 
-tree *leftRotation(tree *p)
+tree *leftRotation(tree *t)
 {
-	int hl = height(p->left);
-	int hr = height(p->right);
+	int hl = height(t->left);
+	int hr = height(t->right);
 	if (fabs(hr - hl) > 1)
 	{
-		tree *b = p->right;
-		hl = Altura(b->left);
-		hr = Altura(b->right);
+		tree *a = t->right;
+		hl = height(a->left);
+		hr = height(a->right);
 		if (hl > hr)
-		p = RotacaoEsqDupla(p);
+		t = doubleLeftRotation(t);
 		else
-		p = RotacaoEsqSimples(p);
+		t = simpleLeftRotation(t);
 	}
-	return p;
+	return t;
 }
 
-arvore *RotacaoDir(arvore *p)
+tree *rightRotation(tree *t)
 {
-	int he = Altura(p->esq);
-	int hd = Altura(p->dir);
-	if (fabs(hd - he) > 1)
+	int hl = height(t->left);
+	int hr = height(t->right);
+	if (fabs(hr - hl) > 1)
 	{
-		arvore *b = p->esq;
-		he = Altura(b->esq);
-		hd = Altura(b->dir);
-		if (hd > he)
-		p = RotacaoDirDupla(p);
+		tree *a = t->left;
+		hl = height(a->left);
+		hr = height(a->right);
+		if (hr > hl)
+		t = doubleRightRotation(t);
 		else
-		p = RotacaoDirSimples(p);
+		t = simpleRightRotation(t);
 	}
-	return p;
+	return t;
 }
 
-arvore *Inserir(arvore *a, int x)
+tree *insert(tree *t, int x)
 {
-	if(a == NULL) 
+	if(t == NULL) 
 	{
-		a = (arvore*)malloc(sizeof(arvore));
-		a->info = x;
-		a->esq = NULL;
-		a->dir = NULL;
+		t = (tree*)malloc(sizeof(tree));
+		t->info = x;
+		t->left = NULL;
+		t->right = NULL;
 	}
 	else
 	{
-		if (x <= a->info)
+		if (x <= t->info)
 		{
-			a->esq = Inserir(a->esq,x);
-			a = RotacaoDir(a);
+			t->left = insert(t->left,x);
+			t = rightRotation(t);
 		}
 		else
 		{
-			a->dir = Inserir(a->dir,x);
-			a = RotacaoEsq(a);
+			t->right = insert(t->right,x);
+			t = leftRotation(t);
 		}
 	}
-	return a;
+	return t;
 }
 
-arvore *Remover(arvore *a, int x)
+tree *remove(tree *t, int x)
 {
-	if(a != NULL)
+	if(t != NULL)
 	{
-		if(a->info == x)
+		if(t->info == x)
 		{
-			//Verificar se � folha
-			if(a->esq == NULL && a->dir == NULL)
+			//Check if it's leaf
+			if(t->left == NULL && t->right == NULL)
 			{
-				free(a);
+				free(t);
 				return NULL;
 			}
-			//Verificar se um dos filhos � nulo
-			else if (a->esq == NULL || a->dir == NULL)
+			//Check if one of the children is null
+			else if (t->left == NULL || t->right == NULL)
 			{
-				arvore *aux;
+				tree *aux;
 				
-				if(a->esq == NULL)
-				aux = a->dir;
+				if(t->left == NULL)
+				aux = t->right;
 				else
-				aux = a->esq;
-				free(a);
+				aux = t->left;
+				free(t);
 				return aux;
 			}
-			//Nenhum filho nulo
+			//No null children
 			else
 			{
-				arvore *maiorEsq = a->esq;
-				while (maiorEsq->dir != NULL)
-				maiorEsq = maiorEsq->dir;
-				a->info = maiorEsq->info;
-				a->esq = Remover(a->esq,a->info);
-				a = RotacaoEsq(a);
+				tree *biggerLeft = t->left;
+				while (biggerLeft->right != NULL)
+				biggerLeft = biggerLeft->right;
+				t->info = biggerLeft->info;
+				t->left = remove(t->left,t->info);
+				t = leftRotation(t);
 			}
 		}
-		else if (x < a->info)
+		else if (x < t->info)
 		{
-			a->esq = Remover(a->esq, x);
-			a = RotacaoEsq(a);
+			t->left = remove(t->left, x);
+			t = leftRotation(t);
 		}
 		else
 		{
-			a->dir = Remover(a->dir, x);
-			a = RotacaoDir(a);
+			t->right = remove(t->right, x);
+			t = rightRotation(t);
 		}
 	}
-	return a;
+	return t;
 }
 
-void Destruir (arvore *a)
+void destroy (tree *t)
 {
-	if (a != NULL)
+	if (t != NULL)
 	{
-		Destruir (a->esq);	
-		Destruir (a->dir); 	
-		free (a);
+		destroy (t->left);	
+		destroy (t->right); 	
+		free (t);
 	}	
 }
 
 int main ()
 {
 	int cmd = 0;
-	int dado = 0;
-	char entrada [50];
-	arvore *a;
+	int data = 0;
+	char entry [50];
+	tree *t;
 	FILE *f;
 	
-	printf ("Forneca o arquivo de uma arvore para ser trabalhada (nao esqueca do .txt):\n");
-	scanf ("%s", &entrada);
+	printf ("Provide the file of a tree to be worked on (don't forget the .txt):\n");
+	scanf ("%s", &entry);
 	printf ("\n");
-	f = fopen (entrada, "rt");
+	f = fopen (entry, "rt");
 	while (cmd != 8)
 	{
-		printf ("Escolha uma das operacoes abaixo:\n");
-		printf ("1: Ler uma arvore de um arquivo fornecido pelo usuario\n");
-		printf ("2: Imprimir a arvore\n");
-		printf ("3: Verificar se um elemento x existe na arvore\n");
-		printf ("4: Imprimir o valor do nivel de um no x\n");
+		printf ("Choose one of the operations below:\n");
+		printf ("1: Read a tree from a user-supplied file\n");
+		printf ("2: Print the tree\n");
+		printf ("3: Check if an specific element existis in the tree\n");
+		printf ("4: Print the level value of a specific node\n");
 		printf ("5: Imprimir as folhas menores que um valor x\n");
-		printf ("6: Inserir um no x na arvore\n");
-		printf ("7: Remover um no x da arvore\n");
-		printf ("8: Sair\n");
-		printf ("Escolha: ");
+		printf ("6: Insert a node x in the tree\n");
+		printf ("7: Remove a node x from the tree\n");
+		printf ("8: Halt\n");
+		printf ("Choice: ");
 		scanf ("%d", &cmd);
 		switch (cmd)
 		{
 			case 1:
-				a = LerArvore (f);
-				printf ("Arvore lida.\n");
+				t = readTree (f);
+				printf ("Tree read.\n");
 			break;
 			case 2:
-				printf ("Escolha a ordem de impressao:\n");
-				printf ("1: pre-ordem\n");
-				printf ("2: em ordem\n");
-				printf ("3: pos-ordem\n");
-				printf ("4: em largura\n");
-				printf ("Escolha: ");
-				scanf ("%d", &dado);
-				switch (dado)
+				printf ("Choose print order:\n");
+				printf ("1: pre-order\n");
+				printf ("2: in order\n");
+				printf ("3: post-order\n");
+				printf ("4: in width\n");
+				printf ("Choice: ");
+				scanf ("%d", &data);
+				switch (data)
 				{
 					case 1: 
-						ImprimirPreOrdem (a); 
+						printPreOrder (t); 
 						printf ("\n");
 					break;
 					case 2:
-						ImprimirEmOrdem (a);
+						printInOrder (t);
 						printf ("\n");
 					break;
 					case 3:
-						ImprimirPosOrdem (a);
+						printPostOrder (t);
 						printf ("\n");
 					break;
 					case 4:
-						ImprimirEmLargura (a, 0);
+						printInWidth (t, 0);
 					break;
 				}
 			break;
 			case 3:
-				printf ("Digite o numero a ser verificado: ");
-				scanf ("%d", &dado);
-				if (Existe (a, dado)) printf ("O numero esta na arvore\n");
-				else printf ("O numero nao esta na arvore\n");
+				printf ("Type a number to be verified: ");
+				scanf ("%d", &data);
+				if (exists (t, data)) printf ("The number is in the tree\n");
+				else printf ("The number is not in the tree\n");
 			break;
 			case 4:
-				printf ("Digite o no a ter o valor de seu nivel impresso\n");
-				scanf ("%d", &dado);
-				if (Existe (a, dado)) printf ("O no esta no nivel %d\n", NivelNo (a, 0, dado));
-				else printf ("O numero nao esta na arvore\n");
+				printf ("Type the node to have its level value printed\n");
+				scanf ("%d", &data);
+				if (exists (t, data)) printf ("The not is on the level %d\n", nodeLevel (t, 0, data));
+				else printf ("The number is not in the tree\n");
 			break;
 			case 5:
-				printf ("Digite o valor x\n");
-				scanf ("%d", &dado);
-				ImprimirFolhasMenores (a, dado);
+				printf ("Type the x value\n");
+				scanf ("%d", &data);
+				printSmallerLeafs (t, data);
 			break;
 			case 6:
-				printf ("Digite o numero a ser inserido\n");
-				scanf ("%d", &dado);
-				a = Inserir (a, dado);
-				printf ("Numero inserido.\n");
+				printf ("Type the number to be entered\n");
+				scanf ("%d", &data);
+				t = insert (t, data);
+				printf ("Entered number.\n");
 			break;
 			case 7:
-				printf ("Digite o numero a ser removido\n");
-				scanf ("%d", &dado);
-				a = Remover (&a, dado);
-				printf ("Numero removido.\n");
+				printf ("Type the number to be removed\n");
+				scanf ("%d", &data);
+				t = remove (&t, data);
+				printf ("Number removed.\n");
 			break;
 			case 8:
-				Destruir (a);
+				destroy (t);
 			break;
 		}
 		printf ("\n");
